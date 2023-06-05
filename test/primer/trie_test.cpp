@@ -98,6 +98,8 @@ TEST(TrieTest, BasicRemoveTest1) {
   std::cout << "\ntest\n" << std::endl;
   ASSERT_EQ(*trie.Get<uint32_t>("test"), 2333);
   // Delete something
+  std::cout << "start to remove: tast" << std::endl;
+  trie = trie.Remove("tast");
   std::cout << "start to remove: test" << std::endl;
   trie = trie.Remove("test");
   ASSERT_EQ(*trie.Get<uint32_t>("tes"), 233);
@@ -106,6 +108,8 @@ TEST(TrieTest, BasicRemoveTest1) {
   ASSERT_EQ(*trie.Get<uint32_t>("te"), 23);
   std::cout << "start to remove: te" << std::endl;
   trie = trie.Remove("te");
+  std::cout << "start to remove: te" << std::endl;
+  std::cout << "start to remove: tast" << std::endl;
 
   ASSERT_EQ(trie.Get<uint32_t>("te"), nullptr);
   ASSERT_EQ(trie.Get<uint32_t>("tes"), nullptr);
