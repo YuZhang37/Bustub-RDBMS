@@ -27,9 +27,11 @@ TEST(TrieTest, BasicPutGetTest) {
   // Put something
   trie = trie.Put<uint32_t>("test", 233);
   ASSERT_EQ(*trie.Get<uint32_t>("test"), 233);
+  std::cout << "Passed (test, 233): " << std::endl;
   // Put something else
   trie = trie.Put<uint32_t>("test", 23333333);
   ASSERT_EQ(*trie.Get<uint32_t>("test"), 23333333);
+  std::cout << "Passed (test, 23333333): " << std::endl;
   // Overwrite with another type
   trie = trie.Put<std::string>("test", "23333333");
   ASSERT_EQ(*trie.Get<std::string>("test"), "23333333");
@@ -42,10 +44,43 @@ TEST(TrieTest, BasicPutGetTest) {
 
 TEST(TrieTest, PutGetOnePath) {
   auto trie = Trie();
-  trie = trie.Put<uint32_t>("111", 111);
+
+  std::cout << "\ninsert (11, 11) " << std::endl;
   trie = trie.Put<uint32_t>("11", 11);
+  auto ret2 = *trie.Get<uint32_t>("11");
+  std::cout << "get (11, 11): " << ret2 << std::endl;
+
+  std::cout << "\ninsert (111, 111) " << std::endl;
+  trie = trie.Put<uint32_t>("111", 111);
+  auto ret1 = *trie.Get<uint32_t>("111");
+  std::cout << "get (111, 111): " << ret1 << std::endl;
+
+  std::cout << "get (11, 11)... " << std::endl;
+  auto ret5 = *trie.Get<uint32_t>("11");
+  std::cout << "get (11, 11): " << ret5 << std::endl;
+
+  std::cout << "\ninset (1111, 1111) " << std::endl;
   trie = trie.Put<uint32_t>("1111", 1111);
+  auto ret3 = *trie.Get<uint32_t>("1111");
+  std::cout << "get (1111, 1111): " << ret3 << std::endl;
+
+  std::cout << "get (11, 11)... " << std::endl;
+  ret5 = *trie.Get<uint32_t>("111");
+  std::cout << "get (11, 11): " << ret5 << std::endl;
+
+
+  std::cout << "\ninset (11, 22) " << std::endl;
   trie = trie.Put<uint32_t>("11", 22);
+  auto ret4 = *trie.Get<uint32_t>("11");
+  std::cout << "get (11, 22): " << ret4 << std::endl;
+
+  std::cout << "\nFinal test \n " << std::endl;
+  ret5 = *trie.Get<uint32_t>("11");
+  std::cout << "get (11, 22): " << ret5 << std::endl;
+  ret5 = *trie.Get<uint32_t>("111");
+  std::cout << "get (111, 111): " << ret5 << std::endl;
+  ret5 = *trie.Get<uint32_t>("1111");
+  std::cout << "get (1111, 1111): " << ret5 << std::endl;
   ASSERT_EQ(*trie.Get<uint32_t>("11"), 22);
   ASSERT_EQ(*trie.Get<uint32_t>("111"), 111);
   ASSERT_EQ(*trie.Get<uint32_t>("1111"), 1111);
@@ -60,9 +95,16 @@ TEST(TrieTest, BasicRemoveTest1) {
   ASSERT_EQ(*trie.Get<uint32_t>("te"), 23);
   trie = trie.Put<uint32_t>("tes", 233);
   ASSERT_EQ(*trie.Get<uint32_t>("tes"), 233);
+  std::cout << "\ntest\n" << std::endl;
+  ASSERT_EQ(*trie.Get<uint32_t>("test"), 2333);
   // Delete something
+  std::cout << "start to remove: test" << std::endl;
   trie = trie.Remove("test");
+  ASSERT_EQ(*trie.Get<uint32_t>("tes"), 233);
+  std::cout << "start to remove: tes" << std::endl;
   trie = trie.Remove("tes");
+  ASSERT_EQ(*trie.Get<uint32_t>("te"), 23);
+  std::cout << "start to remove: te" << std::endl;
   trie = trie.Remove("te");
 
   ASSERT_EQ(trie.Get<uint32_t>("te"), nullptr);
@@ -75,13 +117,21 @@ TEST(TrieTest, BasicRemoveTest2) {
   // Put something
   trie = trie.Put<uint32_t>("test", 2333);
   ASSERT_EQ(*trie.Get<uint32_t>("test"), 2333);
+  std::cout << "passed 1" << std::endl;
   trie = trie.Put<uint32_t>("te", 23);
   ASSERT_EQ(*trie.Get<uint32_t>("te"), 23);
+  std::cout << "passed 2" << std::endl;
   trie = trie.Put<uint32_t>("tes", 233);
   ASSERT_EQ(*trie.Get<uint32_t>("tes"), 233);
+  std::cout << "passed 3" << std::endl;
+  ASSERT_EQ(*trie.Get<uint32_t>("test"), 2333);
+  std::cout << "passed 4" << std::endl;
   // Delete something
+  std::cout << "start to remove: te" << std::endl;
   trie = trie.Remove("te");
+  std::cout << "start to remove: tes" << std::endl;
   trie = trie.Remove("tes");
+  std::cout << "start to remove: test" << std::endl;
   trie = trie.Remove("test");
 
   ASSERT_EQ(trie.Get<uint32_t>("te"), nullptr);
@@ -163,19 +213,39 @@ TEST(TrieTest, CopyOnWriteTest3) {
   auto trie2 = trie1.Put<uint32_t>("te", 23);
   auto trie3 = trie2.Put<uint32_t>("", 233);
 
+  // Check each snapshot
+  std::cout << "AAA check" << std::endl;
+  ASSERT_EQ(*trie3.Get<uint32_t>("te"), 23);
+  ASSERT_EQ(*trie3.Get<uint32_t>(""), 233);
+  ASSERT_EQ(*trie3.Get<uint32_t>("test"), 2333);
+  std::cout << "AAA check passed" << std::endl;
+
+
+
   // Override something
   auto trie4 = trie3.Put<std::string>("te", "23");
   auto trie5 = trie3.Put<std::string>("", "233");
   auto trie6 = trie3.Put<std::string>("test", "2333");
 
-  // Check each snapshot
-  ASSERT_EQ(*trie3.Get<uint32_t>("te"), 23);
-  ASSERT_EQ(*trie3.Get<uint32_t>(""), 233);
-  ASSERT_EQ(*trie3.Get<uint32_t>("test"), 2333);
-
+  std::cout << "BBB check" << std::endl;
+  ASSERT_EQ(*trie4.Get<uint32_t>("test"), 2333);
   ASSERT_EQ(*trie4.Get<std::string>("te"), "23");
   ASSERT_EQ(*trie4.Get<uint32_t>(""), 233);
   ASSERT_EQ(*trie4.Get<uint32_t>("test"), 2333);
+  std::cout << "BBB check passed" << std::endl;
+
+  // Check each snapshot
+  std::cout << "AAAA check" << std::endl;
+  ASSERT_EQ(*trie3.Get<uint32_t>("te"), 23);
+  ASSERT_EQ(*trie3.Get<uint32_t>(""), 233);
+  ASSERT_EQ(*trie3.Get<uint32_t>("test"), 2333);
+  std::cout << "AAAA check passed" << std::endl;
+
+  std::cout << "BBBB check" << std::endl;
+  ASSERT_EQ(*trie4.Get<std::string>("te"), "23");
+  ASSERT_EQ(*trie4.Get<uint32_t>(""), 233);
+  ASSERT_EQ(*trie4.Get<uint32_t>("test"), 2333);
+  std::cout << "BBBB check passed" << std::endl;
 
   ASSERT_EQ(*trie5.Get<uint32_t>("te"), 23);
   ASSERT_EQ(*trie5.Get<std::string>(""), "233");
